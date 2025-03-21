@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sibadeanmob_v2/providers/auth_provider.dart';
-import 'package:sibadeanmob_v2/views/auth/splash.dart';
-
+import 'package:sibadeanmob_v2/views/auth/login.dart';
 void main() {
   runApp(
     MultiProvider(
@@ -26,7 +25,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const Splash(),
+      home: Login(),
     );
   }
 }
+
+//

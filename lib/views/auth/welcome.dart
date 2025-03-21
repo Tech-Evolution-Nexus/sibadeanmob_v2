@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sibadeanmob_v2/views/auth/login.dart';
-import 'package:sibadeanmob_v2/views/auth/verivikasi.dart';
-import 'package:sibadeanmob_v2/widgets/costum_scaffold.dart';
+import 'package:sibadeanmob_v2/views/auth/verifikasi.dart';
+import 'package:sibadeanmob_v2/costum_scaffold.dart';
 import 'package:sibadeanmob_v2/widgets/welcome_button.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -65,7 +65,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         fontFamily: 'Montserrat',
                         fontSize: 30.0,
                         fontWeight: FontWeight.bold,
-                         color: Color.fromARGB(221, 249, 249, 249),
+                        color: Color.fromARGB(221, 249, 249, 249),
                       ),
                       textAlign: TextAlign.center,
                     ),

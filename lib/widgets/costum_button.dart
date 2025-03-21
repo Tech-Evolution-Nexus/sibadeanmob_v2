@@ -16,18 +16,23 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = color ?? theme.colorScheme.primary;
+    final onPrimaryColor = theme.colorScheme.onPrimary;
+    final borderColor = theme.colorScheme.primary;
+
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isOutlined ? Colors.white : (color ?? Colors.blue.shade700),
-        foregroundColor: isOutlined ? Colors.blue.shade700 : Colors.white,
-        side: isOutlined ? BorderSide(color: Colors.blue.shade700, width: 2) : BorderSide.none,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        backgroundColor: isOutlined ? Colors.transparent : primaryColor,
+        foregroundColor: isOutlined ? primaryColor : onPrimaryColor,
+        side: isOutlined ? BorderSide(color: borderColor, width: 2) : BorderSide.none,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       child: Text(
         text,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }
