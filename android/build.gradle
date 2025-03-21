@@ -16,7 +16,16 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0" // Tambahkan ini!
     }
 }
-
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal() // Tambahkan ini agar Kotlin Plugin bisa ditemukan
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.3.0" // Sesuaikan dengan versi Gradle-mu
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0" }
+}
 rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
