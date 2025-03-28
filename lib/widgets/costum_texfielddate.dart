@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatefulWidget {
+class CustomTextFieldd extends StatefulWidget {
   final String labelText;
   final String hintText;
   final TextEditingController? controller;
@@ -12,7 +12,7 @@ class CustomTextField extends StatefulWidget {
   final VoidCallback? onSuffixPressed;
   final String? Function(String?)? validator;
 
-  const CustomTextField({
+  const CustomTextFieldd({
     super.key,
     required this.labelText,
     required this.hintText,
@@ -23,14 +23,14 @@ class CustomTextField extends StatefulWidget {
     this.suffixIcon,
     this.onSuffixPressed,
      this.readOnly = false,
-    this.validator, 
+    this.validator, required Future<Null> Function() onTap, 
   });
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
-class _CustomTextFieldState extends State<CustomTextField> {
+class _CustomTextFieldState extends State<CustomTextFieldd> {
   final FocusNode _focusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
 

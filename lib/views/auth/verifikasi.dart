@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:sibadeanmob_v2/services/auth_service.dart'; // Perbaiki typo pada import
-import 'package:sibadeanmob_v2/theme/theme.dart';
+import 'package:sibadeanmob_v2/methods/api.dart';
 import 'package:sibadeanmob_v2/widgets/costum_button.dart';
 import 'package:sibadeanmob_v2/widgets/costum_scaffold1.dart';
 import 'package:sibadeanmob_v2/views/auth/register.dart';
@@ -16,55 +16,68 @@ class Verifikasi extends StatefulWidget {
 
 class _VerifikasiState extends State<Verifikasi> {
   final TextEditingController nikController = TextEditingController();
+  bool isLoading = false; // Untuk indikator loading
 
-  Future<void> verifikasiNik() async {
+  // 🔹 Fungsi Verifikasi NIK
+  void verifikasiNIK() async {
     String nik = nikController.text.trim();
 
+    // 🔸 Validasi Input
     if (nik.isEmpty) {
-      _showAlertDialog("Peringatan", "Harap masukkan NIK Anda!");
+      _showAlertDialog("Peringatan", "Harap masukkan NIK Anda.");
       return;
     }
 
-    if (nik.length != 16) {
-      _showAlertDialog("Peringatan", "NIK harus terdiri dari 16 digit.");
+    if (nik.length != 16 || !RegExp(r'^[0-9]+$').hasMatch(nik)) {
+      _showAlertDialog("Error", "NIK harus 16 digit angka.");
       return;
     }
 
-    AuthService authService = AuthService();
-    var response = await authService.verifikasiNik(nik);
-    print("Response dari API: $response"); // Debugging
+    setState(() {
+      isLoading = true;
+    });
 
-    if (response != null && response is Map<String, dynamic>) {
-      if (response.containsKey('error')) {
-        _showAlertDialog("Error", response['error']);
-      } else if (response['message'] == 'NIK ditemukan') {
+    try {
+      final response =
+          await API().postRequest(route: "/verifikasi", data: {"nik": nik});
+
+      print("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
         _showAlertDialog(
-          "NIK Terdaftar",
-          "NIK Anda sudah terdaftar. Silakan aktivasi akun Anda.",
+          "Verifikasi Berhasil",
+          "NIK ditemukan: ${responseData['masyarakat']['nik']}",
           onConfirm: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => Aktivasi(nik: nik)),
             );
           },
         );
+      } else if (response.statusCode == 404) {
+        _showAlertDialog("NIK Tidak Ditemukan", onConfirm: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => RegisterScreen()),
+          );
+        }, "Silakan lakukan registrasi terlebih dahulu.");
       } else {
-        _showAlertDialog(
-          "NIK Belum Terdaftar",
-          "NIK Anda belum terdaftar. Silakan melakukan pendaftaran.",
-          onConfirm: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => RegisterScreen()),
-            );
-          },
-        );
+        _showAlertDialog("Error", "Terjadi kesalahan. Coba lagi nanti.");
       }
-    } else {
-      _showAlertDialog("Error", "Terjadi kesalahan. Coba lagi nanti.");
+    } catch (e) {
+      print("Error: $e");
+      _showAlertDialog(
+          "Kesalahan", "Gagal menghubungi server. Cek koneksi internet Anda.");
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
+  // 🔹 Fungsi untuk menampilkan dialog alert
   void _showAlertDialog(String title, String message,
       {VoidCallback? onConfirm}) {
     showDialog(
@@ -109,7 +122,7 @@ class _VerifikasiState extends State<Verifikasi> {
             ),
             const SizedBox(height: 30.0),
 
-            // Input NIK
+            // 🔹 Input NIK
             CustomTextField(
               labelText: "Nomor Induk Kependudukan",
               hintText: "Masukkan NIK",
@@ -120,12 +133,13 @@ class _VerifikasiState extends State<Verifikasi> {
             ),
             const SizedBox(height: 20),
 
-            // Tombol Verifikasi
+            // 🔹 Tombol Verifikasi
             SizedBox(
               width: double.infinity,
               child: CustomButton(
-                text: 'Verifikasi', // Perbaiki typo pada teks tombol
-                onPressed: verifikasiNik,
+                text: isLoading ? 'Memverifikasi...' : 'Verifikasi',
+                onPressed: isLoading ? () {} : verifikasiNIK,
+                // Disable tombol saat loading
               ),
             ),
           ],

@@ -50,7 +50,7 @@ class CustomScaffold extends StatelessWidget {
               children: [
                 // Judul
                 Text(
-                  "Sibadean",
+                  "Sibadean", // Anda masih bisa menampilkan judul statis di sini
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,

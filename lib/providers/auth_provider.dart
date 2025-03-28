@@ -34,25 +34,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   // 🟢 REGISTER
-  Future<bool> register(Map<String, dynamic> data) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    var response = await _authService.register(data);
-    
-    _isLoading = false;
-
-    if (response != null && response.containsKey("user")) {
-      notifyListeners();
-      return true;
-    } else {
-      _errorMessage = response?["error"] ?? "Terjadi kesalahan";
-      notifyListeners();
-      return false;
-    }
-  }
-
+  
   // 🟢 VERIFIKASI NIK
   Future<bool> verifikasiNik(String nik) async {
     _isLoading = true;

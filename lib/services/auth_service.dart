@@ -30,7 +30,7 @@ class AuthService {
   }
 
   // 🟢 REGISTER
-  Future<Map<String, dynamic>?> register(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>?> register(Map<String, dynamic> data, String nama) async {
     try {
       final response = await http.post(
         Uri.parse("$baseUrl/register"),

@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:sibadeanmob_v2/services/auth_service.dart';
-import 'package:sibadeanmob_v2/theme/theme.dart';
-import 'package:sibadeanmob_v2/views/auth/splash.dart';
+import 'package:sibadeanmob_v2/methods/api.dart';
+import 'package:sibadeanmob_v2/views/auth/login.dart';
 import 'package:sibadeanmob_v2/widgets/costum_scaffold1.dart';
 import 'package:sibadeanmob_v2/widgets/costum_texfield.dart';
 
@@ -16,10 +16,10 @@ class Aktivasi extends StatefulWidget {
 
 class _AktivasiState extends State<Aktivasi> {
   final TextEditingController codeController = TextEditingController();
-  bool _isLoading = false; // Tambahkan indikator loading
+  bool _isLoading = false; // Indikator loading
 
   void _showSnackBar(String message, {bool isError = false}) {
-    ScaffoldMessenger.of(context).showSnackBar( // ✅ Perbaikan penulisan
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
         backgroundColor: isError ? Colors.red : Colors.green,
@@ -27,41 +27,63 @@ class _AktivasiState extends State<Aktivasi> {
       ),
     );
   }
-Future<void> _aktivasiAkun() async {
-  String code = codeController.text.trim();
-  
-  if (code.isEmpty) {
-    _showSnackBar("Harap masukkan kode aktivasi!", isError: true);
-    return;
-  }
 
-  AuthService authService = AuthService();
-  setState(() {
-    _isLoading = true;
-  });
-
-  var response = await authService.aktivasiAkun(widget.nik, code); // ✅ Kirim kode aktivasi
-  print("Response Aktivasi: $response");
-
-  setState(() {
-    _isLoading = false;
-  });
-
-  if (response != null && response is Map<String, dynamic>) {
-    if (response.containsKey('error')) {
-      _showSnackBar(response['error'], isError: true);
-    } else {
-      _showSnackBar("Akun Anda telah diaktivasi!", isError: false);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Splash()),
-      );
+  void aktivasiAkun() async {
+    if (codeController.text.isEmpty) {
+      _showSnackBar("Masukkan kode aktivasi!", isError: true);
+      return;
     }
-  } else {
-    _showSnackBar("Terjadi kesalahan. Coba lagi nanti.", isError: true);
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await API().aktivasiAkun(nik: widget.nik);
+      final responseData = jsonDecode(response.body);
+
+      print("Respon Aktivasi: $responseData"); // Debugging
+
+      if (response.statusCode == 200 && responseData['status'] == 'success') {
+        _showAlertDialog(
+          "Aktivasi Berhasil",
+          "Akun Anda berhasil diaktivasi. Silakan login.",
+          onConfirm: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const Login()),
+              (route) => false,
+            );
+          },
+        );
+      } else {
+        _showSnackBar(responseData['message'] ?? "Terjadi kesalahan.", isError: true);
+      }
+    } catch (e) {
+      _showSnackBar("Gagal menghubungi server. Cek koneksi internet Anda.", isError: true);
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
-}
- @override
+
+  void _showAlertDialog(String title, String message, {VoidCallback? onConfirm}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (onConfirm != null) onConfirm();
+            },
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CustomScaffold(
       child: Padding(
@@ -81,33 +103,19 @@ Future<void> _aktivasiAkun() async {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            TextField(
+            CustomTextField(
+              labelText: "Kode Aktivasi",
+              hintText: "Masukkan kode aktivasi",
               controller: codeController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                labelText: "Kode Aktivasi",
-                prefixIcon: Icon(Icons.lock, color: lightColorScheme.primary),
-                contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              ),
+              prefixIcon: Icons.vpn_key,
+              validator: (value) => value!.isEmpty ? 'Masukkan kode aktivasi Anda' : null,
             ),
-
-          CustomTextField(
-          labelText: "Kode Aktivasi",
-          hintText: "Masukkan kode aktivasi",
-          controller: codeController,
-          keyboardType: TextInputType.number,
-          prefixIcon: Icons.vpn_key,
-          validator: (value) =>
-              value!.isEmpty ? 'Masukkan kode aktivasi Anda' : null,
-        ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _isLoading ? null : _aktivasiAkun,
+                onPressed: _isLoading ? null : aktivasiAkun,
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text("Aktivasi Akun"),
